@@ -28,7 +28,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Win32.SystemEvents" Version="9.0.5" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="RhinoCommon" Version="8.19.25132.1001" IncludeAssets="compile;build" />
+    <PackageReference Include="RhinoCommon" Version="8.21.25188.17001" IncludeAssets="compile;build" />
   </ItemGroup>
   
   <ItemGroup>
