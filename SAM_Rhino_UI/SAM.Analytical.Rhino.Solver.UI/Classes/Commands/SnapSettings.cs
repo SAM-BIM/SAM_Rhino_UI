@@ -89,7 +89,7 @@ namespace SAM.Analytical.Rhino.Solver.Plugin
                     continue;
                 }
 
-                string @string = panel.ToJObject()?.ToString();
+                string @string = panel.ToJsonObject()?.ToString();
                 if (string.IsNullOrWhiteSpace(@string))
                 {
                     continue;
