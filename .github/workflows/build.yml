@@ -2,9 +2,9 @@ name: Build (Windows)
 
 on:
   push:
-    branches: [ "master", "main" ]
+    branches: [ "master", "main", "sow/2026-Q2" ]
   pull_request:
-    branches: [ "master", "main" ]
+    branches: [ "master", "main", "sow/2026-Q2" ]
   workflow_dispatch:
 
 jobs:
@@ -48,8 +48,9 @@ jobs:
             throw "Missing secret ORG_REPO_TOKEN. Add it in repo Settings -> Secrets and variables -> Actions."
           }
 
-          $org  = '${{ env.ORG_NAME }}'
-          $repo = '${{ env.REPO_NAME }}'
+          $org   = '${{ env.ORG_NAME }}'
+          $repo  = '${{ env.REPO_NAME }}'
+          $token = $env:GH_TOKEN
 
           # Full dependency chain, plus private SAM_Solver.
           # Keep the current repo LAST.
@@ -73,16 +74,30 @@ jobs:
           $deps = $buildOrder[0..($buildOrder.Count-2)]
           foreach ($r in $deps) {
             if (Test-Path $r) { continue }
-
-            $url = "https://x-access-token:$($env:GH_TOKEN)@github.com/$org/$r.git"
-
-            Write-Host "Cloning $org/$r"
-            git clone --depth 1 $url $r
-
-            if ($LASTEXITCODE -ne 0 -or -not (Test-Path $r)) {
-              throw "Failed to clone $org/$r. Check token permissions (Contents: Read) and repo access."
+            $headRef = '${{ github.head_ref }}'
+            $candidates = @()
+            if ($headRef) { $candidates += $headRef }
+            $candidates += 'sow/2026-Q2'
+            # Use the auth-token form so private deps (e.g. SAM_Solver) don't prompt
+            $url = if ($token) { "https://$token@github.com/$org/$r.git" } else { "https://github.com/$org/$r.git" }
+            $cloned = $false
+            foreach ($cand in $candidates) {
+              $has = (git ls-remote --heads $url $cand 2>$null | Out-String).Trim()
+              if ($has) {
+                Write-Host "Cloning $org/$r @ $cand"
+                git clone --depth 1 --branch $cand $url $r
+                if ($LASTEXITCODE -ne 0) { throw "Failed to clone $r @ $cand" }
+                $cloned = $true
+                break
+              }
+            }
+            if (-not $cloned) {
+              Write-Host "Cloning $org/$r @ default branch"
+              git clone --depth 1 $url $r
+              if ($LASTEXITCODE -ne 0) { throw "Failed to clone $r" }
             }
           }
+
 
           # Ensure ReferencePath folders exist even before dependency builds
           New-Item -ItemType Directory -Force -Path "SAM_Windows\build" | Out-Null

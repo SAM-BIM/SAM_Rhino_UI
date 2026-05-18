@@ -1,4 +1,6 @@
-﻿using Rhino;
+﻿// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (c) 2020–2026 Michal Dengusiak & Jakub Ziolkowski and contributors
+using Rhino;
 using Rhino.Commands;
 using Rhino.DocObjects;
 using Rhino.Geometry;
@@ -89,7 +91,7 @@ namespace SAM.Analytical.Rhino.Solver.Plugin
                     continue;
                 }
 
-                string @string = panel.ToJObject()?.ToString();
+                string @string = panel.ToJsonObject()?.ToString();
                 if (string.IsNullOrWhiteSpace(@string))
                 {
                     continue;
