@@ -87,9 +87,9 @@ jobs:
           $buildOrder = @(
             'SAM'
             'SAM_Solver'
+            'SAM_Mollier'
             'SAM_Systems'
             'SAM_Windows'
-            'SAM_Mollier'
             'SAM_gbXML'
             'SAM_SolarCalculator'
             'SAM_Tas'
@@ -166,9 +166,9 @@ jobs:
           $buildOrder = @(
             'SAM'
             'SAM_Solver'
+            'SAM_Mollier'
             'SAM_Systems'
             'SAM_Windows'
-            'SAM_Mollier'
             'SAM_gbXML'
             'SAM_SolarCalculator'
             'SAM_Tas'
