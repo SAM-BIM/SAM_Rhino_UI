@@ -1,12 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <TargetFramework>net48-windows</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <Version>1.0</Version>
     <Title>SAM.Analytical.Rhino.Solver.Plugin</Title>
     <Description>Description of SAM.Analytical.Rhino.Solver.Plugin</Description>
     <TargetExt>.rhp</TargetExt>
     <UseWindowsForms>true</UseWindowsForms>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -57,7 +58,7 @@
   </PropertyGroup>
   
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="set SAM_DIR=$(APPDATA)\McNeel\Rhinoceros\packages\8.0\SAM\1.0.0\&#xD;&#xA;if not exist &quot;%25SAM_DIR%25&quot; mkdir &quot;%25SAM_DIR%25&quot;&#xD;&#xA;&#xD;&#xA;copy &quot;$(TargetDir)*.dll&quot; &quot;%25SAM_DIR%25&quot;&#xD;&#xA;copy &quot;$(TargetDir)*.rhp&quot; &quot;%25SAM_DIR%25&quot;&#xD;&#xA;copy &quot;$(TargetDir)*.xml&quot; &quot;%25SAM_DIR%25&quot;" />
+    <Exec Command="set SAM_DIR8=$(APPDATA)\McNeel\Rhinoceros\packages\8.0\SAM\1.0.0\&#xD;&#xA;set SAM_DIR9=$(APPDATA)\McNeel\Rhinoceros\packages\9.0\SAM\1.0.0\&#xD;&#xA;if not exist &quot;%25SAM_DIR8%25&quot; mkdir &quot;%25SAM_DIR8%25&quot;&#xD;&#xA;if not exist &quot;%25SAM_DIR9%25&quot; mkdir &quot;%25SAM_DIR9%25&quot;&#xD;&#xA;&#xD;&#xA;copy &quot;$(TargetDir)*.dll&quot; &quot;%25SAM_DIR8%25&quot;&#xD;&#xA;copy &quot;$(TargetDir)*.rhp&quot; &quot;%25SAM_DIR8%25&quot;&#xD;&#xA;copy &quot;$(TargetDir)*.xml&quot; &quot;%25SAM_DIR8%25&quot;&#xD;&#xA;copy &quot;$(TargetDir)*.json&quot; &quot;%25SAM_DIR8%25&quot;&#xD;&#xA;&#xD;&#xA;copy &quot;$(TargetDir)*.dll&quot; &quot;%25SAM_DIR9%25&quot;&#xD;&#xA;copy &quot;$(TargetDir)*.rhp&quot; &quot;%25SAM_DIR9%25&quot;&#xD;&#xA;copy &quot;$(TargetDir)*.xml&quot; &quot;%25SAM_DIR9%25&quot;&#xD;&#xA;copy &quot;$(TargetDir)*.json&quot; &quot;%25SAM_DIR9%25&quot;" />
   </Target>
   
 </Project>
