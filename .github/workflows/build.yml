@@ -181,63 +181,30 @@ jobs:
             # CS0234. Same slot as BuildAlls_v4.csproj uses locally. Needs only SAM and SAM_Mollier,
             # both already above.
             'SAM_Validation'
-            # Moved ABOVE SAM_Tas (it used to sit just below). SAM.Core.UI.WPF references
-            # SAM_Excel\build\SAM.Core.Excel.dll and now has to be built before SAM_Tas - see
-            # $preTasProjects. SAM_Excel's only dependency is SAM, so it is free to move up.
-            'SAM_Excel'
             'SAM_Tas'
+            'SAM_Excel'
             'SAM_GEM'
             'SAM_LadybugTools'
             'SAM_UI'
             $repo
           )
 
-          # Individual PROJECTS built immediately before SAM_Tas, and deliberately not the whole
-          # SAM_UI solution. SAM.Analytical.Grasshopper.Tas (inside SAM_Tas.sln) references
-          # SAM_UI\build\SAM.Core.UI.WPF.dll, but SAM_UI.sln as a whole references
-          # SAM_Tas\build\*.dll - SAM.Analytical.UI and SAM.Analytical.UI.WPF both do. Building
-          # all of SAM_UI here would be a circular dependency and cannot work.
-          #
-          # SAM.Core.UI.WPF is the break in that cycle: it has no SAM_Tas dependency, needs only
-          # SAM\build\SAM.Core.dll and SAM_Excel\build\SAM.Core.Excel.dll, and pulls in
-          # SAM.Core.UI through a ProjectReference - so building it alone produces both DLLs
-          # SAM_Tas needs. SAM_UI still builds in full further down $buildOrder.
-          #
-          # The same pre-build exists in SAM_Tas and SAM_Revit_UI's build.yml and in the local
-          # BuildAlls_v4.csproj; change all four together.
-          $preTasProjects = @(
-            'SAM_UI\WPF\SAM.Core.UI.WPF\SAM.Core.UI.WPF.csproj'
-          )
-
           $solutions = foreach ($r in $buildOrder) {
             $sln = Get-ChildItem -Path $r -Filter *.sln -File | Select-Object -First 1
             if (-not $sln) { throw "No .sln found under: $r" }
-            [pscustomobject]@{ Repo = $r; Path = $sln.FullName }
+            $sln.FullName
           }
 
-          foreach ($entry in $solutions) {
-            Write-Host "==> Restore: $($entry.Path)"
-            & msbuild $entry.Path /t:Restore @common
-            if ($LASTEXITCODE -ne 0) { throw "Restore failed: $($entry.Path)" }
+          foreach ($sln in $solutions) {
+            Write-Host "==> Restore: $sln"
+            & msbuild $sln /t:Restore @common
+            if ($LASTEXITCODE -ne 0) { throw "Restore failed: $sln" }
           }
 
-          foreach ($entry in $solutions) {
-            # SAM_Tas cannot be built until SAM.Core.UI.WPF exists - see $preTasProjects.
-            if ($entry.Repo -eq 'SAM_Tas') {
-              foreach ($p in $preTasProjects) {
-                if (-not (Test-Path $p)) { throw "Missing project: $p" }
-                $proj = (Resolve-Path $p).Path
-                Write-Host "==> Restore + Build (pre-Tas leaf): $proj"
-                & msbuild $proj /t:Restore @common
-                if ($LASTEXITCODE -ne 0) { throw "Restore failed: $proj" }
-                & msbuild $proj /t:Build @common
-                if ($LASTEXITCODE -ne 0) { throw "Build failed: $proj" }
-              }
-            }
-
-            Write-Host "==> Rebuild: $($entry.Path)"
-            & msbuild $entry.Path /t:Rebuild @common
-            if ($LASTEXITCODE -ne 0) { throw "Build failed: $($entry.Path)" }
+          foreach ($sln in $solutions) {
+            Write-Host "==> Rebuild: $sln"
+            & msbuild $sln /t:Rebuild @common
+            if ($LASTEXITCODE -ne 0) { throw "Build failed: $sln" }
           }
 
       - name: Upload build folders (optional)
